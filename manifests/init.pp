@@ -51,7 +51,7 @@ define user::define_user(
 	}
 
     case $uid {
-        'absent': { notice("Not defining a uid for user $name") }
+        'absent': { info("Not defining a uid for user $name") }
         default: {
             User[$name]{
                 uid => $uid,
@@ -60,7 +60,7 @@ define user::define_user(
     }
 
     case $gid {
-        'absent': { notice("Not defining a gid for user $name") }
+        'absent': { info("Not defining a gid for user $name") }
         default: {
             User[$name]{
                 gid => $gid,
@@ -77,7 +77,7 @@ define user::define_user(
                 require => User[$name],
 			}
             case $gid {
-                'absent': { notice("not defining a gid for group $name") }
+                'absent': { info("not defining a gid for group $name") }
                 default: {
                     Group[$name]{
                         gid => $gid,
@@ -93,7 +93,7 @@ define user::define_user(
 	}
 
     case $gid {
-        'absent': { notice("no gid defined for user $name") }
+        'absent': { info("no gid defined for user $name") }
         default: { 
             File[$real_home_dir]{
                 group => $gid,
@@ -102,7 +102,7 @@ define user::define_user(
     }
 
 	case $ssh_key {
-		'absent': { notice("no ssh key define for user $name") }
+		'absent': { info("no ssh key define for user $name") }
 		default: {
 			sshd::deploy_auth_key{"user_sshkey_${name}": source => $ssh_key, user => $name, target_dir => '', group => $name}
 		}
