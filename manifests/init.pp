@@ -17,26 +17,26 @@ class user {}
 
 define user::define_user(
 	$name,
-	$name_comment = '',
-	$uid,
-	$gid,
-	$home_dir = '',
-	$ssh_key = '',
-	$shell = ''
+	$name_comment = 'absent',
+	$uid = 'absent',
+	$gid = 'absent',
+	$home_dir = 'absent',
+	$ssh_key = 'absent',
+	$shell = 'absent'
 	){
 
 	$real_home_dir = $home_dir ? {
-		'' => "/home/$name",
+		'absent' => "/home/$name",
 		default => $home_dir
 	}
 
 	$real_name_comment = $name_comment ? {
-		'' => $name,
+		'absent' => $name,
 		default => $name_comment,	
 	}
 
 	$real_shell = $shell ? {
-		'' =>  $operatingsystem ? {
+		'absent' =>  $operatingsystem ? {
                        	  openbsd => "/usr/local/bin/bash",
                           default => "/bin/bash",
                 	},
@@ -45,13 +45,29 @@ define user::define_user(
 
 	user { $name:
 		allowdupe => false,
-                comment => "$real_name_comment",
-                ensure => present,
-                gid => $gid,
+        comment => "$real_name_comment",
+        ensure => present,
 		home => $real_home_dir,
 		shell => $real_shell,
-		uid => $uid,
 	}
+
+    case $uid {
+        'absent': { notice("Not defining a uid for user $name") }
+        default: {
+            User[$name]{
+                uid => $uid,
+            }
+        }
+    }
+
+    case $gid {
+        'absent': { notice("Not defining a gid for user $name") }
+        default: {
+            User[$name]{
+                gid => $gid,
+            }
+        }
+    }
 
 	case $name {
 		root: {}
@@ -59,18 +75,34 @@ define user::define_user(
 			group { $name:
  				allowdupe => false,
 				ensure => present,
-				gid => $gid
 			}
-		}
-	}
+            case $gid {
+                'absent': { notice("not defining a gid for group $name") }
+                default: {
+                    Group[$name]{
+                        gid => $gid,
+                    }
+                }
+		    }
+	    }
+    }
 
 	file {$real_home_dir:
   			ensure => directory,
-			mode => 0750, owner => $name, group => $gid;
+			owner => $name, mode => 0750;
 	}
 
+    case $gid {
+        'absent': { notice("no gid defined for user $name") }
+        default: { 
+            File[$real_home_dir]{
+                group => $gid,
+            }
+        }
+    }
+
 	case $ssh_key {
-		'': {}
+		'absent': { notice("no ssh key define for user $name") }
 		default: {
 			sshd::deploy_auth_key{"user_sshkey_${name}": source => $ssh_key, user => $name, target_dir => '', group => $name}
 		}
