@@ -74,6 +74,7 @@ define user::define_user(
 			group { $name:
  				allowdupe => false,
 				ensure => present,
+                require => User[$name],
 			}
             case $gid {
                 'absent': { notice("not defining a gid for group $name") }
