@@ -16,7 +16,6 @@
 class user {}
 
 define user::define_user(
-	$name,
 	$name_comment = 'absent',
 	$uid = 'absent',
 	$gid = 'absent',
