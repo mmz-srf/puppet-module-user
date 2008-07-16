@@ -20,6 +20,7 @@ define user::define_user(
 	$uid = 'absent',
 	$gid = 'absent',
 	$home_dir = 'absent',
+    $managehome = 'true',
 	$ssh_key = 'absent',
 	$shell = 'absent'
 	){
@@ -47,6 +48,7 @@ define user::define_user(
         comment => "$real_name_comment",
         ensure => present,
 		home => $real_home_dir,
+        managehome => $managehome,
 		shell => $real_shell,
 	}
 
