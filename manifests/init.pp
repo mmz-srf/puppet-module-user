@@ -19,15 +19,15 @@ define user::define_user(
 	$name_comment = 'absent',
 	$uid = 'absent',
 	$gid = 'absent',
-	$home_dir = 'absent',
+	$homedir = 'absent',
     $managehome = 'true',
-	$ssh_key = 'absent',
+	$sshkey = 'absent',
 	$shell = 'absent'
 	){
 
-	$real_home_dir = $home_dir ? {
+	$real_homedir = $homedir ? {
 		'absent' => "/home/$name",
-		default => $home_dir
+		default => $homedir
 	}
 
 	$real_name_comment = $name_comment ? {
@@ -47,7 +47,7 @@ define user::define_user(
 		allowdupe => false,
         comment => "$real_name_comment",
         ensure => present,
-		home => $real_home_dir,
+		home => $real_homedir,
         managehome => $managehome,
 		shell => $real_shell,
 	}
@@ -89,24 +89,19 @@ define user::define_user(
 	    }
     }
 
-	file {$real_home_dir:
-  			ensure => directory,
-			owner => $name, mode => 0750;
-	}
-
     case $gid {
         'absent': { info("no gid defined for user $name") }
         default: { 
-            File[$real_home_dir]{
+            File[$real_homedir]{
                 group => $gid,
             }
         }
     }
 
-	case $ssh_key {
+	case $sshkey {
 		'absent': { info("no ssh key define for user $name") }
 		default: {
-			sshd::deploy_auth_key{"user_sshkey_${name}": source => $ssh_key, user => $name, target_dir => '', group => $name}
+			sshd::deploy_auth_key{"user_sshkey_${name}": source => $sshkey, user => $name, target_dir => '', group => $name}
 		}
 	}
 }
