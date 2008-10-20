@@ -59,7 +59,7 @@ define user::define_user(
    file{"$real_homedir":
         ensure => directory,
         require => User[$name],
-        owner => $uid, group => $gid, mode => $homedir_mode;
+        owner => $name, group => $name, mode => $homedir_mode;
     } 
 
     case $uid {
