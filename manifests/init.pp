@@ -80,17 +80,6 @@ define user::define_user(
         }
     }
 
-    case $name {
-	    root: {}
-	    default: {
-		    group { $name:
- 			    allowdupe => false,
-			    ensure => present,
-			    gid => $gid,
-            }
-        }
-    }
-
 	case $name {
 		root: {}
 		default: {
