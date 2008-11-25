@@ -21,7 +21,7 @@
 define user::define_user(
 	$name_comment = 'absent',
 	$uid = 'absent',
-	$gid = 'absent',
+	$gid = 'uid',
     $groups = [],
     $membership = 'minimum',
 	$homedir = 'absent',
