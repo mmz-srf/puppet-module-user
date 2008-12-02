@@ -5,7 +5,7 @@
 # password:         the password in cleartext or as crypted string
 #                   which should be set. Default: absent -> no password is set.
 #                   To create an encrypted password, you can use:
-#                   /usr/bin/mkpasswd -H md5 -S $salt $password
+#                   /usr/bin/mkpasswd -H md5 --salt=$salt $password , where $salt is 8 bytes long
 #                   Note: On OpenBSD systems we can only manage crypted passwords.
 #                         Therefor the password_crypted option doesn't have any effect.
 #                         You'll find a python script in ${module}/password/openbsd/genpwd.py
@@ -18,11 +18,14 @@
 #                   absent: let the system take a gid (*default*)
 #                   uid: take the same as the uid has if it isn't absent
 #                   <value>: take this gid
-define user::define_user(
+# manage_group:     Wether we should add a group with the same name as well
+#                   Default: true
+define user::managed(
 	$name_comment = 'absent',
 	$uid = 'absent',
 	$gid = 'uid',
     $groups = [],
+    $manage_group = 'true',
     $membership = 'minimum',
 	$homedir = 'absent',
     $managehome = 'true',
@@ -121,16 +124,17 @@ define user::define_user(
 	case $name {
 		root: {}
 		default: {
-            User[$name]{
-                require => Group[$name],
-            }
-			group { $name:
- 				allowdupe => false,
-				ensure => present,
-			}
-            if $real_gid {
-                Group[$name]{
-                    gid => $real_gid,
+            case $manage_group {
+                'true': {
+    			    group { $name:
+ 	    	    		allowdupe => false,
+		        		ensure => present,
+	    		    }
+                    if $real_gid {
+                        Group[$name]{
+                            gid => $real_gid,
+                        }
+                    }
                 }
             }
 	    }
@@ -190,7 +194,7 @@ define user::sftp_only(
     $password_crypted = 'true'
 ) {
     include user::groups::sftponly
-    user::define_user{"${name}":
+    user::managed{"${name}":
         uid => $uid,
         gid => $gid,
         name_comment => "SFTP-only_user_${name}",
