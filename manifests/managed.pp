@@ -174,7 +174,6 @@ define user::managed(
             }
             User[$name]{
               password => $real_password,
-              require => Package['ruby-shadow'],
             }
           }
         }
