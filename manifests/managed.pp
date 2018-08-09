@@ -117,7 +117,7 @@ define user::managed(
             ensure => absent,
           }
           case $operatingsystem {
-            OpenBSD: {
+            'OpenBSD': {
               Group[$name]{
                 before => User[$name],
               }
@@ -154,7 +154,7 @@ define user::managed(
       }
       if $password != 'absent' {
         case $operatingsystem {
-          openbsd: {
+          'OpenBSD': {
             exec{"setpass ${name}":
               unless => "grep -q '^$name:$password:' /etc/master.passwd",
               command => "usermod -p '$password' $name",
